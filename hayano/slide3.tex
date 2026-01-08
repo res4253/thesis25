@@ -1,0 +1,1228 @@
+\documentclass[aspectratio=169,9pt,dvipdfmx]{beamer}
+%\usepackage{pxjahyper}
+\usetheme{Madrid}%Frankfurt,AnnArbor, Antibes, Berlin, Berkeley, Bergen, Boadilla, boxes, Copenhagen
+
+%\beamerdefaultoverlayspecification{<+->}% 箇条書きを段階的にみせたいとき
+%\setbeamercovered{transparent}%隠してるアイテムを半透明で表示
+\renewcommand{\kanjifamilydefault}{\gtdefault}%日本語フォントをゴシックに
+\usepackage{graphicx}% 各種画像の張り込み
+
+%\usepackage[english]{babel}%多言語文書を作成する
+%\usepackage{amsmath,amssymb}%標準数式表現を拡大する
+%\usepackage{amsmath}
+\usepackage{caption}
+\usepackage{color}
+%\setbeamerfont{caption}{size=\scriptsize}
+\usepackage{subcaption}
+\usepackage{ascmac}
+\usepackage{comment}
+\setbeamertemplate{navigation symbols}{}  %下のアイコン消す
+
+\usefonttheme{professionalfonts}
+
+\usepackage[format=hang,font=footnotesize]{caption}
+
+\usepackage{scalefnt}
+
+\usepackage{amsmath}
+
+\usepackage {xhfill}
+
+\setbeamercolor{date in head/foot}{fg=white, bg=cyan!50!black}
+\setbeamercolor{title in head/foot}{fg=white, bg=cyan!40!black}
+\setbeamercolor{author in head/foot}{fg=white, bg=cyan!30!black}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title[卒業論文発表会]{切り換え制御を用いた一次および三次調整力の複合約定を可能とする\\
+蓄電拠点の分散型運用方策}
+%\subtitle{Decentralized Control of Virtual Power Plants consisting Multiple Facilities}
+
+\author[KOSUKE HAYANO]{ ◯早野 広佑 (動的システム・ロボティクス講座) }
+\institute[University of Toyama]{}
+\date[March 3 2025]{2025年3月3日}
+\subject{\LaTeX{}+Beamer}
+
+\begin{document}
+\setbeamercolor{frametitle}{fg=white, bg=cyan!50!black}
+\setbeamercolor{title}{fg=white, bg=cyan!50!black}
+\begin{frame}
+ \titlepage 
+\end{frame}
+
+\setbeamercolor{block title}
+  {fg=white, bg=cyan!50!black}
+
+\setbeamercolor{block title example}
+  {fg=white, bg=white!50!black!80!green}
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%1ページめ
+\section{研究背景}
+\begin{frame}{研究背景}
+\begin{itemize}
+\item 現在, 再生可能エネルギー機器の
+電力系統
+への導入の拡大が進んでいる
+\end{itemize}
+
+\begin{columns}
+\begin{column}{0.44\textwidth}
+\begin{figure}
+\includegraphics[width=\textwidth]{fig/link_03.pdf}
+
+\end{figure}
+\end{column}
+
+\begin{column}{0.44\textwidth}
+\begin{figure}
+\includegraphics[width=\textwidth]{fig/link_02.pdf}
+\end{figure}
+
+\end{column}
+\end{columns}
+
+\vspace{-0.3cm}
+\begin{flushright}
+\fontsize{6pt}{0pt} \selectfont [1]
+\normalsize
+\end{flushright}
+
+
+\begin{center}
+\uncover<2->{
+    \begin{minipage}{.5\linewidth}
+\begin{block}{}
+\begin{itemize}
+\item 出力が天候に左右される不安定な電源機器
+\end{itemize}
+\end{block}
+\end{minipage}
+
+}
+\end{center}
+ 
+\uncover<3->{
+\vspace{0.3cm}
+\begin{center}
+$\Downarrow$ 導入の拡大
+\end{center}
+\begin{center}
+
+    \begin{minipage}{.7\linewidth}
+\begin{alertblock}{}
+\begin{center}
+
+{\Large
+電力系統の適切な需給バランスの維持の難化}
+\end{center}
+\end{alertblock}
+    \end{minipage}
+\end{center}
+}
+
+
+\hrulefill \\
+
+\fontsize{6pt}{0pt} \selectfont 
+[1]中部電力 再生可能エネルギー発電設備~~\url{https://www.chuden.co.jp/energy/renew/ren_setsubi/}
+
+
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{研究背景}
+
+
+
+\begin{center}
+    \begin{minipage}{.8\linewidth}
+
+\vspace{-0.3cm}
+\begin{block}{電力需給調整市場
+}
+\vspace{0.1cm}
+
+電力系統の需給調整のための電力を調整力として取引
+\vspace{-0.2cm}
+\begin{figure}
+\centering
+
+\includegraphics[scale=0.4]{fig/jukyuu5.pdf}
+\end{figure}
+
+\end{block}
+\end{minipage}
+\end{center}
+\vspace{0.1cm}
+
+\uncover<2->{
+電力需給調整市場が取引する調整力には複数のメニューが存在\fontsize{6pt}{0pt} \selectfont [2]
+\normalsize
+\vspace{-0.1cm}
+\begin{columns}
+\begin{column}{0.4\textwidth}
+ \begin{exampleblock}{三次調整力\raise0.2ex\hbox{\textcircled{\scriptsize{1}}}}
+ \normalsize
+ \begin{itemize}
+\item 経済付加配分制御に相当
+\item 応動時間15分以内
+ \end{itemize}
+ ~~~~~時間スケールの長い調整力
+\end{exampleblock}
+\end{column}
+ \begin{column}{0.4\textwidth}
+ \begin{exampleblock}{一次調整力}
+ \begin{itemize}
+ \item ガバナフリー制御に相当
+ \item 応動時間10秒以内
+ \end{itemize}
+ ~~~~~時間スケールの短い調整力
+ \end{exampleblock}
+ \end{column}
+
+ 
+\end{columns}}
+\vspace{-0.2cm}
+\uncover<3->{
+\begin{center}
+\begin{minipage}{.4\textwidth}
+\begin{block}{複合約定}
+~~~~~1つのリソースが複数商品に入札
+\end{block}
+\end{minipage}
+\end{center}}
+
+\uncover<2->{
+\hrulefill \\
+\fontsize{6pt}{0pt} \selectfont 
+[2]一般社団法人 電力需給調整力取引所:需給調整市場の概要・商品要件, 
+\url{https://www.eprx.or.jp/outline/docs/gaiyoushouhin_ver.4_20240401.pdf}}
+
+\end{frame}
+
+
+\begin{frame}{本研究の目的}
+
+
+
+{\Large
+\begin{itemize}
+\item 系統用蓄電池(蓄電ステーション)を対象に、\textcolor{cyan!50!black}{複合約定}を想定
+\end{itemize}}
+
+\only<1>{
+\begin{columns}
+\begin{column}{0.4\textwidth}
+ \begin{exampleblock}{三次調整力\raise0.2ex\hbox{\textcircled{\scriptsize{1}}}}
+ \normalsize
+ \begin{itemize}
+\item 経済負荷配分制御に相当
+\item 応動時間15分以内\\
+\vspace{0.1cm}
+ $\rightarrow$ 時間スケールの長い調整力
+ \end{itemize}
+\end{exampleblock}
+\end{column}
+ \begin{column}{0.4\textwidth}
+ \begin{exampleblock}{一次調整力}
+ \begin{itemize}
+ \item ガバナフリー制御に相当
+ \item 応動時間10秒以内\\
+ \vspace{0.1cm}
+ $\rightarrow$時間スケールの短い調整力
+ \end{itemize}
+
+ \end{exampleblock}
+ \end{column}
+
+ 
+\end{columns}
+
+\begin{figure}
+\centering
+\includegraphics[width=9cm, height=4cm]{fig/battery.eps}
+\end{figure}
+\vspace{-0.3cm}
+\begin{flushright}
+\vspace{-0.4cm}
+\fontsize{6pt}{0pt} \selectfont [3] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+\end{flushright}
+\hrulefill \\
+\fontsize{6pt}{0pt} \selectfont [3]オリックス : 関西電力との共同事業、2024年に運転開始
+蓄電所事業に参入
+~1.3万世帯分の充放電が可能、電力レジリエンスを強化
+\url{https://www.orix.co.jp/grp/company/newsroom/newsrelease/220714_ORIXJ.html}
+}
+
+
+\only<2->{
+\vspace{0.1cm}
+\begin{columns}
+\begin{column}{0.43\textwidth}
+\begin{exampleblock}{三次調整力用のモード}
+\begin{itemize}
+\item 出力$P$を
+三次調整力指令値$P^{\mathrm{I3}}$に追従
+\end{itemize}
+\end{exampleblock}
+\end{column}
+
+\begin{column}{0.43\textwidth}
+\begin{exampleblock}{一次調整力用のモード}
+\begin{itemize}
+\item 周波数変動
+に合わせて出力$P$を調整
+\end{itemize}
+\end{exampleblock}
+\end{column}
+\end{columns}}
+
+\uncover<3->{
+\vspace{0.1cm}
+\hspace{5.7cm}\rotatebox{30}{$\Downarrow$}\\
+\vspace{-0.47cm}
+\hspace{9cm}\rotatebox{-30}{$\Downarrow$}
+\begin{center}
+\begin{minipage}{.6\textwidth}
+
+\begin{itemize}
+{\large
+\item この2つのモードを適切に自動で切り換え
+\item 各機器が自身の出力目標値を決定する分散型の運用}
+\end{itemize}
+
+\end{minipage}
+\end{center}}
+\vspace{0.2cm}
+\uncover<4>{
+\begin{center}
+{\LARGE $\Downarrow$}
+\end{center}
+
+\begin{center}
+\begin{minipage}{0.95\textwidth}
+\begin{alertblock}{}
+\begin{itemize}
+{\Large 
+\item 上記の運用目標を達成できる運用方策の策定、制御系の構築、実機実験による検証}
+\end{itemize}
+\end{alertblock}
+\end{minipage}
+\end{center}}
+
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{目次}
+\setbeamercovered{transparent}
+\begin{enumerate}%[<+-|alert@+>]
+ \item はじめに
+ \begin{itemize}
+ \item 研究背景
+ \item 本研究の目的
+ \end{itemize}
+ \item 想定するシステム
+ \item 分散制御方策
+\begin{itemize}
+\item 三次調整力への対応
+\item 一次調整力への対応
+\item 各モードとモード切り換え方策
+ \end{itemize}
+ \item 実機実験による有効性検証
+ \begin{itemize}
+ \item 実験環境
+ \item 実験結果１：単純な周波数変動（ステップ状）
+ \item 実験結果２：単純な周波数変動（ランプ状）
+\end{itemize}
+\item 終わりに
+\end{enumerate}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+
+%%%%%%%%%5ページ目
+\begin{frame}{想定するシステム}
+\begin{block}{想定する蓄電ステーション}
+複数の蓄電池と蓄電池用PCS(Power Conditioning System)で構成されている\\
+また、システム全体の管理者であるユーティリティーが存在
+\begin{figure}
+\centering
+\includegraphics[scale=0.5]{fig/batst.eps}
+\end{figure}
+\end{block}
+
+各PCSが決定する自身の出力目標値$P_i^{\mathrm{r}}[k]$は以下の式で表される
+\begin{columns}
+\begin{column}{0.5\textwidth}
+{\Large
+\begin{align}
+P_i^{\mathrm{r}}[k] = P_i^{\mathrm{r3}}[k] + P_i^{\mathrm{r1}}[k]
+\end{align}
+}
+\end{column}
+\begin{column}{0.3\textwidth}
+\begin{center}
+
+{\small$P_i^{\mathrm{r3}}$ : 三次調整力用の出力目標値}\\
+
+{\small$P_i^{\mathrm{r1}}$ : 一次調整力用の出力目標値}
+\end{center}
+\end{column}
+\end{columns}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{目次}
+\setbeamercovered{transparent}
+\begin{enumerate}%[<+-|alert@+>]
+ \item <alert>はじめに
+ \begin{itemize}
+ \item <alert>研究背景
+ \item <alert>本研究の目的
+ \end{itemize}
+ \item <alert>想定するシステム
+ \item 分散制御方策
+\begin{itemize}
+\item 三次調整力への対応
+\item <alert>一次調整力への対応
+\item <alert>各モードとモード切り換え方策
+ \end{itemize}
+ \item <alert>実機実験による有効性検証
+ \begin{itemize}
+ \item <alert>実験環境
+ \item <alert>実験結果１：単純な周波数変動（ステップ状）
+ \item <alert>実験結果２：単純な周波数変動（ランプ状）
+\end{itemize}
+\item <alert>終わりに
+\end{enumerate}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+%%%%%%%%%%%%%%%%%%7ページ目
+\begin{frame}{三次調整力への対応}
+\begin{itemize}
+\item 本研究では価格提示を利用した分散最適化\fontsize{6pt}{0pt} \selectfont [4] \normalsize
+を用いた制御によって三次調整力へ対応する
+\end{itemize}
+\vspace{-0.3cm}
+\begin{center}
+\begin{minipage}{.7\linewidth}
+\begin{block}{PCS : 分散最適化問題}
+\begin{itemize}
+\item 各PCSは価格信号$p_i[k]$を考慮した以下の最適化問題を解く
+\end{itemize}
+\vspace{-0.2cm}
+{\large
+\begin{subequations}\label{eq_b}
+ \begin{align}
+  \min_{
+  P^{\mathrm{r3}}_{i}[k]
+  }
+  \quad
+  &
+  w_{i}
+  (P^{\mathrm{r3}}_{i}[k])^{2}
+  +
+  p_{i}[k] P^{\mathrm{r3}}_{i}[k]
+  \label{eq:dist_opt-J}
+  \\
+  %%%%%
+  \mathrm{subject \ to} 
+  \quad
+  &
+  -P_i^{\mathrm{lim}} \leq 
+  P_i^{\mathrm{r3}}[k] \leq
+  P_i^{\mathrm{lim}}
+  \label{eq:dist_opt-ie}
+ \end{align}
+ 
+\end{subequations}}
+\end{block}
+\end{minipage}
+\end{center}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.6\textwidth]{fig/pcs_saitekika.pdf}
+\end{figure}
+\vspace{-0.3cm}
+\hrulefill \\
+\fontsize{6pt}{0pt} \selectfont [4]
+阿久津ほか: 
+発電・蓄電・需要機器を有する拠点群により構成される仮想発電所の階層分散型運用と実験検証,
+システム制御情報学会論文誌, 
+\textbf{37}-9, 247/256~(2024)
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+%%%%%%%%%%%%%%%%%%7ページ目
+\begin{frame}{三次調整力への対応}
+\vspace{-0.4cm}
+\begin{center}
+\begin{minipage}{.6\linewidth}
+\begin{exampleblock}{ユーティリティー : 実時間価格更新則}
+運用目標である$P$と$P^{\mathrm{I3}}$の一致のために以下の式で価格更新
+{\large
+\begin{subequations}\label{eq_p}
+ \begin{align}
+  p_{i}[k] &= \lambda[k]\label{eq_p1} \\
+\lambda[k+1] &= \lambda[k] + \Delta \lambda[k]\label{eq_p2} \\
+  \Delta \lambda[k] &= 
+  \epsilon
+  \left(
+  P[k] - P^{\mathrm{I3}}[k]
+  \right)\label{eq_p3}
+ \end{align}
+\end{subequations}}
+\begin{center}
+{
+\footnotesize $\epsilon$ : 帯域幅決定のためのパラメータ(適切な値にすることで運用目標を達成)}
+\end{center}
+
+
+\end{exampleblock}
+\end{minipage}
+\end{center}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.9\textwidth]{fig/utility1.png}
+\end{figure}
+
+
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%追加
+\begin{frame}{三次調整力への対応}
+
+\vspace{-0.2cm}
+{\Large
+\begin{itemize}
+\item 全体としてのフィードバック制御系
+\end{itemize}}
+\vspace{-0.3cm}
+\begin{figure}
+
+\includegraphics[width=0.7\textwidth]{fig/3ji.pdf}
+\end{figure}
+\uncover<2>{
+\vspace{-2cm}
+\begin{flushright}
+\begin{minipage}{0.6\textwidth}
+\begin{block}{}
+{\Large
+\begin{itemize}
+\item この制御系により分散的に三次調整力へ対応
+\end{itemize}}
+\end{block}
+\end{minipage}
+\end{flushright}}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{目次}
+\setbeamercovered{transparent}
+\begin{enumerate}%[<+-|alert@+>]
+ \item <alert>はじめに
+ \begin{itemize}
+ \item <alert>研究背景
+ \item <alert>本研究の目的
+ \end{itemize}
+ \item <alert>想定するシステム
+ \item 分散制御方策
+\begin{itemize}
+\item <alert>三次調整力への対応
+\item 一次調整力への対応
+\item <alert>各モードとモード切り換え方策
+ \end{itemize}
+ \item <alert>実機実験による有効性検証
+ \begin{itemize}
+ \item <alert>実験環境
+ \item <alert>実験結果１：単純な周波数変動（ステップ状）
+ \item <alert>実験結果２：単純な周波数変動（ランプ状）
+\end{itemize}
+\item <alert>終わりに
+\end{enumerate}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%8ページめ
+\begin{frame}{一次調整力への対応}
+\vspace{-0.3cm}
+\begin{block}{一次調整力用の出力目標値$P^{\mathrm{r1}}_{i}[k]$の決定}
+各PCSの出力目標値$P^{\mathrm{r1}}_{i}[k]$は以下の式に従って決定する\fontsize{6pt}{0pt} \selectfont [5]
+\normalsize
+\begin{minipage}{.5\linewidth}
+{\large
+\begin{align}
+ P^{\mathrm{r1}}_{i}[k] = 
+ -\frac{P^{\mathrm{lim}}_{i} \times dF[k]}{F^{\mathrm{r}} \times R} 
+\label{eq_df}
+\end{align}}
+
+\end{minipage}
+\hspace{1cm}
+\begin{minipage}{.4\linewidth}
+{\footnotesize
+$F^{\mathrm{r}}~[\mathrm{Hz}]$ : 基準周波数\\
+$dF~[\mathrm{Hz}]$ : 基準周波数との偏差\\
+$R$ : 速度調定率}
+\end{minipage}
+
+\end{block}
+
+
+\begin{columns}
+\begin{column}{0.49\textwidth}
+\centering
+\includegraphics[scale=0.4]{fig/speedrate.eps}
+\end{column}
+\begin{column}{0.49\textwidth}
+
+~~実際の運用では
+\begin{itemize}
+\item $\pm$0.2[Hz]の周波数変動に対して応答\\
+\item 出力変動を調定率直線の$\pm$10\%以内\\
+\item 速度調定率(直線の傾き)を0.05(5\%)以内
+\end{itemize}
+\end{column}
+\end{columns}
+
+\hrulefill \\
+\fontsize{6pt}{0pt} \selectfont [5] 一般社団法人 電力需給調整力取引所:取引ガイド(全商品) (第6版)
+  \url{https://www.eprx.or.jp/outline/docs/guide_250314.pdf}
+
+
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{目次}
+\setbeamercovered{transparent}
+\begin{enumerate}%[<+-|alert@+>]
+ \item <alert>はじめに
+ \begin{itemize}
+ \item <alert>研究背景
+ \item <alert>本研究の目的
+ \end{itemize}
+ \item <alert>想定するシステム
+ \item 分散制御方策
+\begin{itemize}
+\item <alert>三次調整力への対応
+\item <alert>一次調整力への対応
+\item 各モードとモード切り換え方策
+ \end{itemize}
+ \item <alert>実機実験による有効性検証
+ \begin{itemize}
+  \item <alert>実験環境
+ \item <alert>実験結果１：単純な周波数変動（ステップ状）
+ \item <alert>実験結果２：単純な周波数変動（ランプ状）
+\end{itemize}
+\item <alert>終わりに
+\end{enumerate}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%新
+\begin{frame}{各モードとモード切り換え方策}
+
+{\large
+\begin{itemize}
+\item 本研究では2つのモードを設定
+\end{itemize}}
+\begin{columns}
+\begin{column}{0.45\textwidth}
+
+\begin{block}{三次調整力モード}
+\begin{itemize}
+\item  制御系により出力$P$を指令値$P^{\mathrm{I3}}$に追従\\
+\item  周波数変動に合わせた出力調整は行わない($P^{\mathrm{r1}}_{i}[k]=0$)
+\end{itemize}
+
+
+\begin{figure}
+\centering
+\includegraphics[width=0.9\textwidth]{fig/3ji.pdf}
+
+\end{figure}
+
+
+\end{block}
+
+\end{column}
+
+\begin{column}{0.45\textwidth}
+
+\begin{block}{一次調整力モード}
+
+\begin{itemize}
+\item  価格$p_i[k]$を更新しないため$P^{\mathrm{r3}}_{i}[k]$は一定\\
+\item  (\ref{eq_df})式によって$P^{\mathrm{r1}}_{i}[k]$を決定
+\end{itemize}
+
+
+\begin{align}
+ P^{\mathrm{r1}}_{i}[k] = 
+ -\frac{P^{\mathrm{lim}}_{i} \times dF[k]}{F^{\mathrm{r}} \times R}\tag{\ref{eq_df}}
+\end{align}
+
+\end{block}
+
+\end{column}
+
+\end{columns}
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%新
+\begin{frame}{各モードとモード切り換え方策}
+
+
+\begin{columns}
+\begin{column}{0.45\textwidth}
+
+\begin{block}{三次調整力モード}
+\begin{itemize}
+\item 制御系により出力$P$を指令値$P^{\mathrm{I3}}$に追従\\
+\item  周波数変動に合わせた出力調整は行わない($P^{\mathrm{r1}}_{i}[k]=0$)
+\end{itemize}
+
+
+\end{block}
+
+\end{column}
+
+\begin{column}{0.45\textwidth}
+
+\begin{block}{一次調整力モード}
+
+\begin{itemize}
+\item  価格$p_i[k]$を更新しないため$P^{\mathrm{r3}}_{i}[k]$は一定\\
+\item  (\ref{eq_df})式によって$P^{\mathrm{r1}}_{i}[k]$を決定
+\end{itemize}
+
+
+
+\end{block}
+
+\end{column}
+
+\end{columns}
+
+
+
+
+
+
+
+\begin{exampleblock}{切り換え条件}
+モードの変数$m[k]$(三次調整力モード$m[k]=3$, 一次調整力モード$m[k]=1$)
+
+\begin{columns}
+\begin{column}{0.45\textwidth}
+\begin{alertblock}{}
+\begin{itemize}
+\item $m[k]=3\rightarrow m[k]=1$への切り換え条件
+\end{itemize}
+\begin{center}
+{\large
+$|P[k] - P^{\mathrm{I3}}[k]| < \delta$}\\
+
+{\small
+$\delta$を適切に設定し追従を判断する}
+\end{center}
+\end{alertblock}
+\end{column}
+\begin{column}{0.45\textwidth}
+\begin{center}
+\begin{alertblock}{}
+\begin{itemize}
+\item $m[k]=1\rightarrow m[k]=3$への切り換え条件
+\end{itemize}
+\begin{center}
+{\large
+$P^{\mathrm{I3}}[k] \neq P^{\mathrm{I3}}[k-1]$}\\
+
+\end{center}
+\end{alertblock}
+\end{center}
+\end{column}
+\end{columns}
+
+
+\end{exampleblock}
+\vspace{0.2cm}
+\begin{center}
+\begin{minipage}{0.9\textwidth}
+{\large
+\begin{itemize}
+\item モード$m[k]$はユーティリティーで決定され価格$p[k]$とともに
+各PCSへ送信される
+\end{itemize}}
+\end{minipage}
+\end{center}
+
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%11ページめ
+\begin{frame}{各モードとモード切り換え方策}
+
+\vspace{-0.2cm}
+{\large
+\begin{itemize}
+\item モードの切り換えを考慮したフィードバック制御系
+\end{itemize}}
+\vspace{-0.4cm}
+\begin{figure}
+\centering
+\includegraphics[width=0.65\textwidth]{fig/closedloop.eps}
+\end{figure}
+
+\vspace{-2cm}
+\uncover<2>{
+\begin{flushright}
+\begin{minipage}{0.65\textwidth}
+\begin{block}{}
+この制御系により各PCSが分散的に自身の出力目標値を決定しつつも\\
+三次調整力と一次調整力の双方に対応が可能
+\end{block}
+\end{minipage}
+\end{flushright}
+}
+\end{frame}
+%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{目次}
+\setbeamercovered{transparent}
+\begin{enumerate}%[<+-|alert@+>]
+ \item <alert>はじめに
+ \begin{itemize}
+ \item <alert>研究背景
+ \item <alert>本研究の目的
+ \end{itemize}
+ \item <alert>想定するシステム
+ \item <alert>分散制御方策
+\begin{itemize}
+\item <alert>三次調整力への対応
+\item <alert>一次調整力への対応
+\item <alert>各モードとモード切り換え方策
+ \end{itemize}
+ \item 実機実験による有効性検証
+ \begin{itemize}
+ \item 実験環境
+ \item 実験結果１：単純な周波数変動（ステップ状）
+ \item 実験結果２：単純な周波数変動（ランプ状）
+\end{itemize}
+\item <alert>終わりに
+\end{enumerate}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%12ページめ
+\begin{frame}{実験環境}
+2台のPCSからなる蓄電ステーションを想定
+\begin{figure}
+\centering
+\includegraphics[scale=0.33]{fig/envir.eps}
+\end{figure}
+\vspace{-0.6cm}
+\begin{flushright}
+{\footnotesize Parameters of PCS}~~~~~
+\end{flushright}
+\vspace{-0.3cm}
+\begin{table}[h]
+\begin{flushright}
+ \begin{tabular}{|*{15}{c|}}
+  \hline
+  No. & $P^{\mathrm{lim}}_{i}$ & $w_{i}$\\
+  \hline
+  1 & 250~[kW] & 6\\
+  \hline
+  2 & 250~[kW] & 4\\
+  \hline
+ \end{tabular}
+ \end{flushright}
+\end{table}
+\vspace{-2cm}
+{\small
+環境構築の簡略化のため以下は試験用PCでおこなう
+\begin{itemize}
+\item PCSの三次調整力目標値$P_i^{\mathrm{r3}}$の計算(Simulink上で分散計算)
+\item 周波数偏差$dF[k]$の模擬信号の作成
+\end{itemize}
+
+PCと各PCSの通信の周期は0.5[s]、
+三次調整力用の制御系のサンプリング時間は1[s]}
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\begin{frame}{実験パラメータ}
+%フィードバック制御系のサンプリング時間は1[s]\\
+ %三次調整力指令値は$P^{\mathrm{I3}}=$
+%$
+ %\begin{cases}
+ %   ~0~[kW]  & ~0[s] \le t < 50 ~[s]  \\
+%    ~200~[kW]  &50[s] \le t <200~[s]\\
+ %   ~300~[kW] & 200[s] \le t < 400~[s]
+%  \end{cases}
+%$
+%\begin{columns}
+%\begin{column}{0.49\textwidth}
+%\begin{table}[h]
+% \caption{Parameters of Utility}\label{parme_u}
+ %\small % フォントサイズを小さくする
+% \centering
+ %\begin{tabular}{|*{15}{c|}}
+ % \hline
+%$\epsilon$ & $\delta$\\
+%  \hline
+%  0.35& 2.5~[kW]\\
+  % \hline
+% \end{tabular}
+%\end{table}
+%\end{column}
+
+
+
+
+%\begin{column}{0.49\textwidth}
+%%%%%%にこめ
+%\begin{table}[h]
+% \caption{Parameters of PCS}\label{param_P}
+ %\small % フォントサイズを小さくする
+% \centering
+% \begin{tabular}{|*{15}{c|}}
+%  \hline
+ % No. & $P^{\mathrm{lim}}_{i}$ & $w_{i}$\\
+%  \hline
+%  1 & 250~[kW] & 6\\
+%  \hline
+ % 2 & 250~[kW] & 4\\
+%  \hline
+% \end{tabular}
+%\end{table}
+%\end{column}
+%\end{columns}
+
+%一次調整力で対応する周波数偏差$dF$はステップ型とランプ型の2種類
+%\begin{figure}
+%\centering
+%\includegraphics[scale=0.23]{fig/dF_s_s.eps}
+%\includegraphics[scale=0.23]{fig/lampdfs.eps}
+%\end{figure}
+%\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{実験結果１：単純な周波数変動（ステップ状）}
+\vspace{-0.2cm}
+\begin{figure}
+ \centering
+ \begin{minipage}{.3\textwidth}
+  \includegraphics[width = 1.05\textwidth]{fig/step/step11.eps}
+
+ \end{minipage}
+ \begin{minipage}{.3\textwidth}
+  \includegraphics[width = 1.05\textwidth]{fig/step/step12.eps}
+
+ \end{minipage}
+ \begin{minipage}{.3\textwidth}
+  \includegraphics[width = 1.05\textwidth]{fig/step/step13.eps}
+
+ \end{minipage}\\
+{\scriptsize 周波数偏差}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{\scriptsize 全体での出力}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{\scriptsize 価格}\\
+ \begin{minipage}{.3\textwidth}
+  \includegraphics[width = 1.05\textwidth]{fig/step/step14.eps}
+
+ \end{minipage}
+ \begin{minipage}{.3\textwidth}
+  \includegraphics[width = 1.05\textwidth]{fig/step/step15.eps}
+
+ \end{minipage}
+
+~~~{\scriptsize PCS$_1$の出力}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{\scriptsize PCS$_2$の出力}
+\end{figure}
+
+
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{実験結果２：単純な周波数変動（ランプ状）}
+\vspace{-0.2cm}
+\begin{figure}
+\centering
+ \begin{minipage}{.3\textwidth}
+  \includegraphics[width = 1.05\textwidth]{fig/lamp/lamp13.eps}
+
+ \end{minipage}
+ \begin{minipage}{.3\textwidth}
+  \includegraphics[width = 1.05\textwidth]{fig/lamp/lamp12.eps}
+  
+ \end{minipage}
+ \begin{minipage}{.3\textwidth}
+  \includegraphics[width = 1.05\textwidth]{fig/lamp/lamp15.eps}
+
+ \end{minipage}\\
+{\scriptsize 周波数偏差}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{\scriptsize 全体での出力}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{\scriptsize 価格}\\
+ \begin{minipage}{.3\textwidth}
+  \includegraphics[width = 1.05\textwidth]{fig/lamp/lamp14.eps}
+
+ \end{minipage}
+ \begin{minipage}{.3\textwidth}
+  \includegraphics[width = 1.05\textwidth]{fig/lamp/lamp11.eps}
+
+ \end{minipage}
+ 
+ 
+ ~~~{\scriptsize PCS$_1$の出力}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{\scriptsize PCS$_2$の出力}
+\end{figure}
+
+
+
+
+
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{目次}
+\setbeamercovered{transparent}
+\begin{enumerate}%[<+-|alert@+>]
+ \item <alert>はじめに
+ \begin{itemize}
+ \item <alert>研究背景
+ \item <alert>本研究の目的
+ \end{itemize}
+ \item <alert>想定するシステム
+ \item <alert>分散制御方策
+\begin{itemize}
+\item <alert>三次調整力への対応
+\item <alert>一次調整力への対応
+\item <alert>各モードとモード切り換え方策
+ \end{itemize}
+ \item <alert>実機実験による有効性検証
+ \begin{itemize}
+ \item <alert>実験環境
+ \item <alert>実験結果１：単純な周波数変動（ステップ状）
+ \item <alert>実験結果２：単純な周波数変動（ランプ状）
+\end{itemize}
+\item 終わりに
+\end{enumerate}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{おわりに}
+
+ 
+ 
+\begin{columns}
+\begin{column}{0.43\textwidth}
+\begin{exampleblock}{三次調整力用のモード}
+\begin{itemize}
+\item 出力$P$を
+三次調整力指令値$P^{\mathrm{I3}}$に追従
+\end{itemize}
+\end{exampleblock}
+\end{column}
+
+\begin{column}{0.43\textwidth}
+\begin{exampleblock}{一次調整力用のモード}
+\begin{itemize}
+\item 周波数変動
+に合わせて出力$P$を調整
+\end{itemize}
+\end{exampleblock}
+\end{column}
+\end{columns}
+
+\begin{center}
+\begin{minipage}{.6\textwidth}
+\vspace{0.2cm}
+\begin{itemize}
+{\large
+\item この2つのモードを適切に自動で切り換え
+\item 各機器が自身の出力目標値を決定する分散型の運用}
+\end{itemize}
+
+\end{minipage}
+\end{center}
+
+
+\begin{center}
+\begin{minipage}{0.95\textwidth}
+\begin{alertblock}{}
+\begin{itemize}
+{\Large 
+\item 上記の運用目標を達成できる運用方策の策定、制御系の構築、実機実験による検証}
+\end{itemize}
+\end{alertblock}
+\end{minipage}
+\end{center}
+
+
+\begin{block}{結論}
+本研究では一次調整力と三次調整力の複合約定を想定し, 複合約定を達成可能な
+分散型運用方策を提案した.\\
+ 提案した方策は実機実験結果から有効性を確認した.
+\end{block}
+\begin{exampleblock}{今後の展望}
+実際の運用で問題となる各機器の充電状況や劣化状況を加味した運用方策を組み込む
+\end{exampleblock}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%北海道
+\begin{frame}{付録}
+\vspace{-0.3cm}
+
+\begin{center}
+\begin{minipage}{0.7\textwidth}
+\begin{block}{平成30年度北海道胆振東部地震時の周波数データ\fontsize{6pt}{0pt} \selectfont [6]
+ \normalsize}
+
+\begin{figure}
+
+\includegraphics[scale=0.5]{fig/hokkaidou3.png}
+
+\end{figure}
+\end{block}
+\end{minipage}
+\end{center}
+
+ただし、今回の実験環境で対応できる周波数変動は$\pm0.2$[Hz]
+
+\vspace{0.05cm}
+$\rightarrow$周波数偏差をスケーリング(0.25倍)
+
+\vspace{-0.05cm}
+
+\hrulefill \\
+\fontsize{6pt}{0pt} \selectfont 
+[6] 電力広域的推進機関:平成30年北海道胆振東部地震に伴う大規模停電に関する検証委員会最終報告 
+\url{https://www.occto.or.jp/iinkai/hokkaido_kensho/hokkaidokensho_saishuhoukoku.html}
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{付録}
+\vspace{-0.2cm}
+\begin{figure}
+\centering
+ \begin{minipage}{0.3\textwidth}
+  \includegraphics[width = 1.05\textwidth]{fig/10minnotave/1.eps}
+
+ \end{minipage}
+ \begin{minipage}{0.3\textwidth}
+  \includegraphics[width = 1.05\textwidth]{fig/10minnotave/2.eps}
+
+ \end{minipage}
+ \begin{minipage}{0.3\textwidth}
+  \includegraphics[width = 1.05\textwidth]{fig/10minnotave/3.eps}
+
+ \end{minipage}
+\\
+{\scriptsize 周波数偏差}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{\scriptsize 全体での出力}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{\scriptsize 価格}\\
+ \begin{minipage}{0.3\textwidth}
+  \includegraphics[width = 1.05\textwidth]{fig/10minnotave/4.eps}
+
+ \end{minipage}
+ \begin{minipage}{0.3\textwidth}
+  \includegraphics[width = 1.05\textwidth]{fig/10minnotave/5.eps}
+
+ \end{minipage}
+ 
+ 
+ ~~~{\scriptsize PCS$_1$の出力}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{\scriptsize PCS$_2$の出力}
+\end{figure}
+
+
+\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\end{document}

@@ -1,0 +1,520 @@
+\chapter{実機実験よる有効性検証}
+\label{cec_experiment}
+
+本章では3章で示した制御系において一次調整力と三次調整力のどちらにも対応する電力調整が達成可能であることを実機を用いた実験において検証する. 
+\section{実験環境}
+本実験
+では, 2つの蓄電池用PCSから構成される蓄電ステーションを想定し, 実験を行う. その構成をFig~\ref{fig_enviroment}に示す. 
+
+実験環境の主な構成要素は, 蓄電池用PCS, PCSが連系した系統を模擬するための交流電源, PCSに接続された蓄電池を模擬するための直流電源, 実験用Simulinkモデルを動作させる試験用PCである.
+
+
+%%%%
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\textwidth]{fig/envir.eps}
+\caption{Environment of Experiment}
+\label{fig_enviroment}
+\end{figure}
+%%%%
+
+
+試験用PC内のSimulinkモデルでは各PCSの出力$P_i[k]$をTCP/IP通信を使用し取得し, モードの切り換えと価格$p_i[k]$の更新をおこなう. このようなユーティリティーの働きを担うことに加えて今回の実験環境では環境構築の簡略化のために下記も試験用PCにて実行する. 
+\begin{itemize}
+ \item PCS の三次調整力目標値 $P^{\mathrm{r3}}_{i}[k]$ の計算 (ただし, Simulink 上にて分散計算)
+ \item 周波数偏差 $dF[k]$ の模擬信号の作成 
+\end{itemize}
+%%%各PCSの三次調整力目標値$P^{\mathrm{r3}}_{i}[k]$の計算をSimulink上で分散計算することと周波数偏差の模擬信号の作成は試験用PC内でおこなっている.
+そして, 周波数偏差$dF[k]$, モード$m[k]$, 三次調整力目標値$P^{\mathrm{r3}}_{i}[k]$を各PCSへTCP/IP通信により送信する. TCP/IP通信の通信部も試験用PCのSimulinkモデル内に実装している.\par
+各PCS上では試験用PCから受信した周波数変動から一次調整力目標値$P^{\mathrm{r1}}_{i}[k]$を計算し, 受信した三次調整力目標値$P^{\mathrm{r3}}_{i}[k]$と足し合わせて最終的な各PCSの出力目標値$P^{\mathrm{r}}_{i}[k]$を決定, 実際に電力を出力する. 
+本実験で各PCSは, 定格容量250[kW]の機体と同一の制御回路と同等の変換特性を有した
+電気回路により構成された, 1[kW]のスケールダウンモデルを使用する. 
+\section{実験パラメータ}
+実験用PCと各PCSの通信に関するサンプリング時間は0.5[s]とし, フィードバック制御系のサンプリング時間$t_s$を1[s]として実験を行う. ユーティリティーの各パラメータをTable~\ref{parme_u}, 各PCSのパラメータをTable~\ref{param_P}に示す. Table~\ref{param_P}に示すように2台のPCSは重みの違う2台を想定している. 
+%%%%%%ぱらめーた1
+\begin{table}[h]
+ \caption{Parameters of Utility}\label{parme_u}
+ %\small % フォントサイズを小さくする
+ \centering
+ \begin{tabular}{|*{15}{c|}}
+  \hline
+$\epsilon$ & $\delta$\\
+  \hline
+  0.35& 2.5~[kW]\\
+   \hline
+ \end{tabular}
+\end{table}
+%%%%%%にこめ
+\begin{table}[h]
+ \caption{Parameters of PCS}\label{param_P}
+ %\small % フォントサイズを小さくする
+ \centering
+ \begin{tabular}{|*{15}{c|}}
+  \hline
+  No. & $P^{\mathrm{lim}}_{i}$ & $w_{i}$\\
+  \hline
+  1 & 250~[kW] & 6\\
+  \hline
+  2 & 250~[kW] & 4\\
+  \hline
+ \end{tabular}
+\end{table}
+%%%
+\section{仮想の周波数偏差データを用いた実機実験}
+%%%%なまえよう相談
+\subsection{用意した周波数偏差データ}
+実験において用意した仮想の周波数偏差はステップ状, ランプ状に0[Hz]から増加するものと減少するもの, 2[s]間隔ごとに変動するランダムノイズ, 1[s]間隔ごとに変動するランダムノイズの6種類である. それぞれFig.~\ref{fig_df_sstep}, Fig.~\ref{fig_df_sstepm}, Fig.~\ref{fig_df_slamp}, Fig.~\ref{fig_df_slampm}, Fig.~\ref{fig_df_snoise2s}, Fig.~\ref{fig_df_snoise1s}に示す. これらの周波数変差に一次調整力として対応する.\\
+また, 三次調整力指令値は全ての場合で$P^{\mathrm{I3}}=$
+$
+ \begin{cases}
+    ~0~[kW]  & ~0[s] \le t < 50 ~[s]  \\
+    ~200~[kW]  &50[s] \le t <200~[s]\\
+    ~300~[kW] & 200[s] \le t < 400~[s]
+  \end{cases}
+$\\
+としている. \\
+%%%%周波数変動のグラフ
+\begin{figure}[h]
+\centering
+\begin{minipage}[b]{0.24\columnwidth}
+    \centering
+    \includegraphics[scale=0.2]{fig/df_s/dF_s_s.eps}
+    \caption{step(inc)}
+    \label{fig_df_sstep}
+\end{minipage}
+\begin{minipage}[b]{0.24\columnwidth}
+    \centering
+    \includegraphics[scale=0.2]{fig/df_s/dF_sm_s.eps}
+    \caption{step(dec)}
+    \label{fig_df_sstepm}
+\end{minipage}
+\begin{minipage}[b]{0.24\columnwidth}
+    \centering
+    \includegraphics[scale=0.2]{fig/df_s/dF_l_s.eps}
+    \caption{lamp(inc)}
+    \label{fig_df_slamp}
+\end{minipage}
+\begin{minipage}[b]{0.24\columnwidth}
+    \centering
+    \includegraphics[scale=0.2]{fig/df_s/dF_lm_s.eps}
+    \caption{lamp(dec)}
+    \label{fig_df_slampm}
+\end{minipage}
+%%%%%%%%
+\begin{minipage}[b]{0.24\columnwidth}
+    \centering
+    \includegraphics[scale=0.2]{fig/df_s/dF_s_noise2s.eps}
+    \caption{noise(2s)}
+    \label{fig_df_snoise2s}
+\end{minipage}
+\begin{minipage}[b]{0.24\columnwidth}
+    \centering
+    \includegraphics[scale=0.2]{fig/df_s/dF_s_noise1s.eps}
+    \caption{noise(1s)}
+    \label{fig_df_snoise1s}
+\end{minipage}
+\end{figure}
+%%%%%%
+%%%%%%
+
+
+\subsection{実機実験結果}
+Fig.~\ref{fig_step}にステップ状(増加), Fig.~\ref{fig_step_m}にステップ状(減少), Fig.~\ref{fig_lamp}にランプ状(増加), Fig.~\ref{fig_lamp_m}にランプ状(減少), Fig.~\ref{fig_noise2s}に2[s]間隔のランダムノイズ, Fig.~\ref{fig_noise1s}に1[s]間隔のランダムノイズの周波数偏差を与えた場合の実機実験結果を示す. \par
+Fig.~\ref{dF_step}に周波数偏差を示す. Fig.~\ref{P_step}にはシステム全体での三次調整力指令値$P^{\mathrm{I3}}[k]$, 全体での出力$P[k]$, モード$m[k]$を示している. ただし, モード$m[k]$はモードの変化を明確にするため値を50倍している. Fig.~\ref{price_step}はユーティリティーから送信される価格$p_i[k]$, Fig.~\ref{pcs1_step}, Fig.~\ref{pcs2_step}に各PCSの出力$P_1[k],~P_2[k]$をそれぞれ示す. また, 実験結果を実線, シミュレーション結果を破線で示す. なお,  各グラフ中において背景が薄緑色の区間は, 三次調整力モード$m[k]=3$で動作していることを示している. 一方, 背景が薄緑色ではない区間は一次調整力モード$m[k]=1$で動作している. Fig.~\ref{fig_lamp}, Fig.~\ref{fig_noise2s}, Fig.~\ref{fig_noise1s}も同様である.\par
+Fig.~\ref{dF_step}, Fig.~\ref{P_step}, Fig.~\ref{price_step}より, 三次調整力指令値$P^{\mathrm{I3}}[k]$の変化に伴い三次調整力モードとなり, 価格$p_i[k]$の変化によって全体での出力$P[k]$が定常状態で$P^{\mathrm{I3}}[k]$に追従するように変化していることがわかる. その後, 追従すると一次調整力モードに戻り, 周波数偏差が与えられると偏差に応じた出力調整をおこなっていることがわかる. さらに$P^{\mathrm{I3}}[k]$がまた変化するとその区間では三次調整力モードに切り換わり, 周波数偏差を無視し, $P^{\mathrm{I3}}[k]$に$P[k]$が追従するように変化する. 追従したのちに周波数偏差による出力調整が再び行われていることがわかる. また, 全てのグラフにおいて, シミュレーション結果とほぼ同一の値になっているということも確認できる. これらの結果は他の周波数偏差を与えた場合のFig.~\ref{fig_step_m}, Fig.~\ref{fig_lamp}, Fig.~\ref{fig_lamp_m}, Fig.~\ref{fig_noise2s}, Fig.~\ref{fig_noise1s}においても同様の結果を得られている.
+%%%%
+%%%%%ステップ
+\vspace{2cm}
+
+\begin{figure}[!h]
+ \centering
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/step/step_1.eps}
+  \subcaption{Frequency Deviation}\label{dF_step}
+ \end{minipage}
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/step/step_6.eps}
+  \subcaption{Power of System}\label{P_step}
+ \end{minipage}
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/step/step_3.eps}
+  \subcaption{Price}\label{price_step}
+ \end{minipage}
+
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/step/step_5.eps}
+  \subcaption{Power of PCS$_{1}$}\label{pcs1_step}
+ \end{minipage}
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/step/step_2.eps}
+  \subcaption{Power of PCS$_{2}$}\label{pcs2_step}
+ \end{minipage}
+ 
+ \caption{Experimental result: Step change(inc)}
+ \label{fig_step}
+\end{figure}
+%%%%%%ステップマイナス
+
+\vspace{2cm}
+
+\begin{figure}[!h]
+ \centering
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/step_m/step_m_1.eps}
+  \subcaption{Frequency Deviation}\label{dF_step_m}
+ \end{minipage}
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/step_m/step_m_2.eps}
+  \subcaption{Power of System}\label{P_step_m}
+ \end{minipage}
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/step_m/step_m_3.eps}
+  \subcaption{Price}\label{price_step_m}
+ \end{minipage}
+
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/step_m/step_m_4.eps}
+  \subcaption{Power of PCS$_{1}$}\label{pcs1_step_m}
+ \end{minipage}
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/step_m/step_m_5.eps}
+  \subcaption{Power of PCS$_{2}$}\label{pcs2_step_m}
+ \end{minipage}
+ 
+ \caption{Experimental result: Step change(dec)}
+ \label{fig_step_m}
+\end{figure}
+%%%%%%ランプ
+
+\vspace{2cm}
+
+\newpage
+\begin{figure}[!h]
+\centering
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/lamp/lamp_1.eps}
+  \subcaption{Frequency Deviation}\label{dF_lamp}
+ \end{minipage}
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/lamp/lamp_2.eps}
+  \subcaption{Power of System}\label{P_lamp}
+ \end{minipage}
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/lamp/lamp_3.eps}
+  \subcaption{Price}\label{price_lamp}
+ \end{minipage}
+
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/lamp/lamp_4.eps}
+  \subcaption{Power of PCS$_{1}$}\label{pcs1_lamp}
+ \end{minipage}
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/lamp/lamp_5.eps}
+  \subcaption{Power of PCS$_{2}$}\label{pcs2_lamp}
+ \end{minipage}
+  \caption{Experimental result: Lamp change(inc)}
+ \label{fig_lamp}
+\end{figure}
+%%%%ランプマイナス
+\begin{figure}[!h]
+\centering
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/lamp_m/lamp_m_3.eps}
+  \subcaption{Frequency Deviation}\label{dF_lamp_m}
+ \end{minipage}
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/lamp_m/lamp_m_2.eps}
+  \subcaption{Power of System}\label{P_lamp_m}
+ \end{minipage}
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/lamp_m/lamp_m_1.eps}
+  \subcaption{Price}\label{price_lamp_m}
+ \end{minipage}
+
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/lamp_m/lamp_m_4.eps}
+  \subcaption{Power of PCS$_{1}$}\label{pcs1_lamp_m}
+ \end{minipage}
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/lamp_m/lamp_m_5.eps}
+  \subcaption{Power of PCS$_{2}$}\label{pcs2_lamp_m}
+ \end{minipage}
+ 
+ \caption{Experimental result: Lamp change(dec)}
+ \label{fig_lamp_m}
+\end{figure}
+\newpage
+%%%%%ノイズ1s
+\begin{figure}[!h]
+ \centering
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/noise2s/noise2s_1.eps}
+  \subcaption{Frequency Deviation}\label{dF_noise2s}
+ \end{minipage}
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/noise2s/noise2s_7.eps}
+  \subcaption{Power of System}\label{P_noise2s}
+ \end{minipage}
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/noise2s/noise2s_3.eps}
+  \subcaption{Price}\label{price_noise2s}
+ \end{minipage}
+
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/noise2s/noise2s_4.eps}
+  \subcaption{Power of PCS$_{1}$}\label{pcs1_noise2s}
+ \end{minipage}
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/noise2s/noise2s_5.eps}
+  \subcaption{Power of PCS$_{2}$}\label{pcs2_noise2s}
+ \end{minipage}
+ 
+ \caption{Experimental result: Noise(2s)}
+ \label{fig_noise2s}
+\end{figure}
+%%%%%%%%%%%
+\begin{figure}[!h]
+ \centering
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/noise1s/noise1s_1.eps}
+  \subcaption{Frequency Deviation}\label{dF_noise1s}
+ \end{minipage}
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/noise1s/noise1s_2.eps}
+  \subcaption{Power of System}\label{P_noise1s}
+ \end{minipage}
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/noise1s/noise1s_3.eps}
+  \subcaption{Price}\label{price_noise1s}
+ \end{minipage}
+
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/noise1s/noise1s_4.eps}
+  \subcaption{Power of PCS$_{1}$}\label{pcs1_noise1s}
+ \end{minipage}
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/noise1s/noise1s_5.eps}
+  \subcaption{Power of PCS$_{2}$}\label{pcs2_noise1s}
+ \end{minipage}
+ 
+ \caption{Experimental result: Noise(1s)}
+ \label{fig_noise1s}
+\end{figure}
+
+\newpage
+
+
+
+\section{実際の周波数偏差データを用いた実機実験}
+%%%%%なまえ要相談
+\subsection{平成30年北海道胆振東部地震時の周波数データ}
+前節の実験では仮想の周波数偏差を与え, 一次調整力で対応してきた. 本節では電力広域的運営推進機関(OCCTO)のホームページ
+%%%%
+で公開されている北海道胆振東部地震時の実際の周波数変動データ~\cite{{hokkaidou}}から周波数偏差を取得し, その周波数偏差にも一次調整力で対応できるかを検証する. 公開されている平成30年度北海道胆振東部地震時の午前3時5分から3時30分までの20[ms]サンプリングの周波数変動データをFig.~\ref{df_hokkaidou}に示す. 実験設備の一次調整力での出力の上下限の関係により対応できる周波数偏差は$\pm$0.2[Hz]であるが地震時の周波数偏差は最大で-5[Hz]程度と非常に大きい. そこで実験に使用する区間は周波数偏差が$\pm$0.2[Hz]を超えない3:18:00から3:20:30までの150秒間(Fig.~\ref{df_hokkaidou}内で薄緑色の区間)と周波数偏差が$\pm$0.8[Hz]内に収まっている3:10:00から3:20:00の600秒間(Fig.~\ref{df_hokkaidou}内で薄青色の区間)の周波数偏差を0.25倍してスケーリングしたもので実験をおこなう.\par
+
+
+
+%%%%%
+また, 実験設備の通信のサンプル時間が0.5[s]であるため20[ms]サンプルの周波数偏差に対応することは難しいそのため実験に使用する区間で1[s](50データ)ごとに間引きした. また, それぞれの区間で各時間の前データ50個の平均をとり, その後1[s]ごとに間引きしたデータも用意し, 計4種類の実験をおこなう. それぞれの周波数偏差をFig.~\ref{fig_df_s150notave}, Fig.~\ref{fig_df_s150ave}, Fig.~\ref{fig_df_s10minnotave}, Fig.~\ref{fig_df_s10minave}, に示す. 
+なお, 周波数偏差データは前節までの実験と異なり2実験づつ150秒間, 600秒間であるため三次調整力指令値は各実験に合わせてそれぞれ\\
+
+$P^{\mathrm{I3}}=$
+$
+ \begin{cases}
+    ~0~[kW]  & ~0[s] \le t < 50 ~[s]  \\
+    ~200~[kW]  &50[s] \le t <100~[s]\\
+    ~300~[kW] & 100[s] \le t < 150~[s]
+  \end{cases}
+$, 
+$
+ \begin{cases}
+    ~0~[kW]  & ~0[s] \le t < 100 ~[s]  \\
+    ~200~[kW]  &100[s] \le t <400~[s]\\
+    ~300~[kW] & 400[s] \le t < 600~[s]
+  \end{cases}
+$\\
+
+
+
+とした.
+
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\textwidth]{fig/hokkaidou_df_3.pdf}
+\caption{平成30年北海道胆振東部地震時の周波数データ}
+\label{df_hokkaidou}
+\end{figure}
+%%%%%
+%%%%%北海道の実験で使う周波数偏差
+%%%%
+\begin{figure}[h]
+\centering
+\begin{minipage}[b]{0.49\columnwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{fig/df_s/df_150notave_s.eps}
+    \caption{3:18:00$\sim$3:20:30}
+    \label{fig_df_s150notave}
+\end{minipage}
+\begin{minipage}[b]{0.49\columnwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{fig/df_s/df_150ave_s.eps}
+    \caption{3:18:00$\sim$3:20:30(平均化)}
+    \label{fig_df_s150ave}
+\end{minipage}
+\end{figure}
+
+
+
+
+
+\begin{figure}[h]
+\begin{minipage}[b]{0.49\columnwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{fig/df_s/df_10minnotave_s.eps}
+    \caption{3:10$\sim$3:20: scale-down}
+    \label{fig_df_s10minnotave}
+\end{minipage}
+\begin{minipage}[b]{0.49\columnwidth}
+    \centering
+    \includegraphics[width=0.9\textwidth]{fig/df_s/df_10minave_s.eps}
+    \caption{3:10$\sim$3:20: scale-down(平均化)}
+    \label{fig_df_s10minave}
+\end{minipage}
+\end{figure}
+
+%%%%%
+
+%%%%%%
+%%%%%%%%%%%%
+
+
+
+\subsection{実機実験結果}
+%%%
+Fig.~\ref{fig_150notave}に3:18:00から3:20:30の150秒間の周波数偏差を1[s]ごとに間引きしたもの, Fig.~\ref{fig_150ave}に同じ150秒間の周波数偏差を各時間で前データ50での平均を取り1[s]ごとに間引きしたもの, Fig.~\ref{fig_10minnotave}に3:10から3:20の600秒間の周波数偏差を1[s]ごとに間引きしたもの, Fig.~\ref{fig_10minave}に同じ600秒間の周波数偏差を各時間で前データ50個での平均を取り1[s]ごとに間引きしたものを周波数偏差として与えた場合の実機実験結果を示す. 示している実験結果の内容は仮想の周波数偏差を用いた場合と同じである. \par
+全ての結果で仮想の周波数偏差を用いた場合の結果と同じように三次調整力指令値が変動するまでは一次調整力モードで周波数偏差に応じた出力調整をおこない, 三次調整力指令値が変動すると三次調整力モードに切り換わり, 周波数偏差を無視し出力が指令値に追従するようにする. 追従次第一次調整力モードに戻り, また周波数変動に応じた出力調整をおこなっていることがわかる. \par
+%%%%%%結論に書くべきかも
+以上の結果から提案方策により各モードが適切に切り換わりながら三次調整力, 一次調整力の双方に対応できていることがわかる.
+
+
+%%%%%%実験結果
+%%%%
+%%%%%150秒間間引きのみ
+\begin{figure}[!h]
+ \centering
+ \begin{minipage}{.3\textwidth}
+  \includegraphics[width = \textwidth]{fig/150notave/150notave_1.eps}
+  \subcaption{Frequency Deviation}\label{dF_150notave}
+ \end{minipage}
+ \begin{minipage}{.3\textwidth}
+  \includegraphics[width = \textwidth]{fig/150notave/150notave_2.eps}
+  \subcaption{Power of System}\label{P_150notave}
+ \end{minipage}
+ \begin{minipage}{.3\textwidth}
+  \includegraphics[width = \textwidth]{fig/150notave/150notave_3.eps}
+  \subcaption{Price}\label{price_150notave}
+ \end{minipage}
+
+ \begin{minipage}{.3\textwidth}
+  \includegraphics[width = \textwidth]{fig/150notave/150notave_4.eps}
+  \subcaption{Power of PCS$_{1}$}\label{pcs1_150notave}
+ \end{minipage}
+ \begin{minipage}{.3\textwidth}
+  \includegraphics[width = \textwidth]{fig/150notave/150notave_5.eps}
+  \subcaption{Power of PCS$_{2}$}\label{pcs2_150notave}
+ \end{minipage}
+ 
+ \caption{Experimental result: 3:18:00$\sim$3:20:30}
+ \label{fig_150notave}
+\end{figure}
+%%%%%
+%%%%%150秒間平均化して間引き
+\begin{figure}[!h]
+ \centering
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/150ave/150ave_1.eps}
+  \subcaption{Frequency Deviation}\label{dF_150ave}
+ \end{minipage}
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/150ave/150ave_2.eps}
+  \subcaption{Power of System}\label{P_150ave}
+ \end{minipage}
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/150ave/150ave_3.eps}
+  \subcaption{Price}\label{price_150ave}
+ \end{minipage}
+
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/150ave/150ave_4.eps}
+  \subcaption{Power of PCS$_{1}$}\label{pcs1_150ave}
+ \end{minipage}
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/150ave/150ave_5.eps}
+  \subcaption{Power of PCS$_{2}$}\label{pcs2_150ave}
+ \end{minipage}
+ 
+ \caption{Experimental result: 3:18:00$\sim$3:20:30 (平均化)}
+ \label{fig_150ave}
+\end{figure}
+%%%%%
+%%%%600秒間間引きのみ
+\begin{figure}[!h]
+ \centering
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/10minnotave/10minnotave_1.eps}
+  \subcaption{Frequency Deviation}\label{dF_10minnotave}
+ \end{minipage}
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/10minnotave/10minnotave_2.eps}
+  \subcaption{Power of System}\label{P_10minnotave}
+ \end{minipage}
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/10minnotave/10minnotave_3.eps}
+  \subcaption{Price}\label{price_10minnotave}
+ \end{minipage}
+
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/10minnotave/10minnotave_4.eps}
+  \subcaption{Power of PCS$_{1}$}\label{pcs1_10minnotave}
+ \end{minipage}
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/10minnotave/10minnotave_5.eps}
+  \subcaption{Power of PCS$_{2}$}\label{pcs2_10minnotave}
+ \end{minipage}
+ 
+ \caption{Experimental result: 3:10$\sim$3:20 scale-down}
+ \label{fig_10minnotave}
+\end{figure}
+%%%%%
+%%%%600秒間平均化して間引き
+\begin{figure}[!h]
+ \centering
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/10minave/10minave_1.eps}
+  \subcaption{Frequency Deviation}\label{dF_10minave}
+ \end{minipage}
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/10minave/10minave_2.eps}
+  \subcaption{Power of System}\label{P_10minave}
+ \end{minipage}
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/10minave/10minave_3.eps}
+  \subcaption{Price}\label{price_10minave}
+ \end{minipage}
+
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/10minave/10minave_4.eps}
+  \subcaption{Power of PCS$_{1}$}\label{pcs1_10minave}
+ \end{minipage}
+ \begin{minipage}{.325\textwidth}
+  \includegraphics[width = \textwidth]{fig/10minave/10minave_5.eps}
+  \subcaption{Power of PCS$_{2}$}\label{pcs2_10minave}
+ \end{minipage}
+ 
+ \caption{Experimental result: 3:10$\sim$3:20 scale-down(平均化)}
+ \label{fig_10minave}
+\end{figure}
+
+
+

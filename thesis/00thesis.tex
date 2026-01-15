@@ -1,0 +1,234 @@
+
+%% 作成する論文にあわせて doctor, master, bachelor を指定してください.
+%% draft モードは, 図の入れこみを省略し, タイプセット時間を省略します.
+%\documentclass[doctor,draft]{dsr-thesis}
+\documentclass[bachelor]{dsr-thesis}
+
+%% 必要に応じてパッケージを追加してください.
+%\usepackage[dvips]{graphicx,color}
+% \usepackage[dvipdfmx]{color}
+\usepackage[dvipdfmx]{graphicx,color}
+\usepackage[cmex10]{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{ascmac}
+\usepackage{here}
+\usepackage{listings}
+\usepackage{jlisting}
+\usepackage{url}
+\usepackage{colortbl}
+\usepackage{float}
+\usepackage{here}
+\usepackage{udline}
+\usepackage{comment}
+%%%%% subfigure
+%\usepackage{subfigure}
+\usepackage{subcaption}
+%%%%% subfloat
+%\usepackage{subfig}
+%%%%% subcaption
+% \usepackage[hang,small,bf]{caption}
+% \usepackage[subrefformat=parens]{subcaption}
+% \captionsetup{compatibility=false}
+\captionsetup[subfigure]{labelformat=simple}
+\renewcommand{\thesubfigure}{(\alph{subfigure})}
+
+%%%%% for jlisting
+\renewcommand{\lstlistingname}{List}
+%%%
+\lstset{
+   breaklines=true,
+   basicstyle=\ttfamily\small,
+   keywordstyle={\bfseries \color[cmyk]{0,1,0,0}},
+   commentstyle={\ttfamily \color[cmyk]{1,0.4,1,0}},
+   stringstyle={\ttfamily \color[rgb]{0,0,1}},
+   frame=tb,
+   framesep=1zw,
+   numbers=left,
+   numberstyle=\tiny,
+   stepnumber=1,
+   numbersep=10pt,
+   backgroundcolor=\color{white},
+   tabsize=2,
+   showspaces=false,
+   showstringspaces=false,
+   columns=[1]{fullflexible},
+   lineskip=-0.5zw}
+%%%
+\lstdefinestyle{sh}{
+   language=sh,
+   morekeywords={elif}}
+%%%
+\lstdefinestyle{csh}{
+   language=csh,
+   deletekeywords={printf}}
+%%%
+\lstdefinestyle{matlab}{
+   language=matlab,
+   morekeywords={mkdir, strcat, saveas, imread, im2frame, movie2avi}}
+%%%
+\lstdefinestyle{pde}{
+   language=c++,
+   morekeywords={byte, boolean}}
+\lstdefinestyle{c}{
+   language=C,
+   morekeywords={byte, boolean}}
+
+%subfigureの並べた図一つ一つのキャプションの位置を変更
+\def\subfigcapskip{-4mm}
+%subfigre全体のキャプションの位置を変更
+\def\subfigbottomskip{0pt}
+
+%% ドキュメント情報
+
+\title{
+\ul{切り換えシステムを用いた糖代謝数理モデルによる}\\
+\ul{状態推定器の構築}
+}
+
+
+
+\etitle{
+Title in English
+}
+\author{田辺　裕翔}
+\eauthor{TANABE yuto}
+\school{富山大学}
+\eschool{University of Toyama}
+\enteryear{4}
+\defensejyear{7}
+\major{工学部 工学科 電気電子工学コース}
+\emajor{Major in English}
+\identify{St. Number}
+\adviser{平田 研二 教授}
+% \subadviser{氏名} % 主査が二人の場合
+\symbol{logo_y03.eps}
+\date{令和 8 年  月  日}
+\edate{February 1, 2020.} % 英語概要用の日付
+
+
+
+\makeatletter
+  \renewcommand{\section}{%
+    \@startsection{section}{1}{\z@}%
+    {0.3ex plus -.5ex minus -.2ex}{.3ex plus .2ex}%
+    {\Large\bf}}
+\renewcommand{\subsection}{%
+    \@startsection{subsection}{2}{\z@}%
+    {0.3ex plus -.5ex minus -.2ex}{.3ex plus .2ex}%
+    {\large\bf}}
+  \renewcommand{\subsubsection}{%
+    \@startsection{subsubsection}{3}{\z@}%
+    {0ex plus -.5ex minus -.2ex}{.3ex plus .2ex}%
+    {\bf}}
+    %{\normalfont\large\headfont\raggedright}}
+\makeatother
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\maketitle
+%\clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 英語概要
+%\begin{eabstract}
+ %\input{abstract/enabst.tex}
+%\end{eabstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 日本語概要
+%\begin{abstract}
+% \input{abstract/jaabst.tex}
+%\end{abstract}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\cleardoublepage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 目次など
+\frontmatter
+\tableofcontents
+\listoffigures
+\listoftables
+\cleardoublepage
+\mainmatter
+\pagenumbering{arabic}
+\setcounter{page}{1}
+\renewcommand{\thefootnote}{\fnsymbol{footnote}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 本論
+%\input{chapter/00list.tex}
+%%%%%%%%%% Introduction
+\cleardoublepage
+%\input{section/01.tex}
+%\input{section/02.tex}
+%\input{section/03.tex}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 付録
+\appendix
+%\input{huroku.tex}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\backmatter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 謝辞
+%\input{section/acknowledgement.tex}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 参考文献
+\setcounter{chapter}{0}%
+\markright{参考文献}%
+\chapter*{参考文献}
+\addcontentsline{toc}{chapter}{参考文献}
+\bibliographystyle{junsrt}
+\bibliography{biblio}
+%\input{section/reference.tex}
+% \nocitebib{*}
+% \bibliographystylebib{junsrt}
+% \bibliographybib{biblio}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% 業績
+% %%% ALL
+% \nocitepub{*}
+% \bibliographystylepub{junsrt}
+% \bibliographypub{alllist}
+% \setcounter{chapter}{0}%
+% \markright{本研究に関する論文, 講演および賞罰}%
+% \chapter*{本研究に関する論文, 講演および賞罰}
+% \addcontentsline{toc}{chapter}{本研究に関する論文, 講演および賞罰}
+% \section*{学会論文誌}
+% %%% Transactions
+% \nocitetrn{*}
+% \bibliographystyletrn{junsrt}
+% %\bibliographystyletrn{jplain}
+% \bibliographytrn{tran}
+% \section*{国際学会発表}
+% %%% Conferences
+% \nociteintcon{*}
+% \bibliographystyleintcon{junsrt}
+% %\bibliographystyleintcon{jplain}
+% \bibliographyintcon{intconf}
+% \section*{国内学会発表}
+% %%% Conferences
+% \nocitedomcon{*}
+% \bibliographystyledomcon{junsrt}
+% %\bibliographystyledomcon{jplain}
+% \bibliographydomcon{domconf}
+% \section*{特許}
+% %%% Patent
+% \input{patent.tex}
+% \section*{賞罰}
+% %%% Reward and punishment
+% \input{reward_and_punishment.tex}
+
+\end{document}

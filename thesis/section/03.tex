@@ -1,0 +1,421 @@
+\chapter{分散型制御方策}
+\label{cec_strategy}
+
+
+本章では, 提案する分散型の制御方策において各調整力へ対応するモードと各モード切り換えのアルゴリズムについて説明する.
+
+\section{三次調整力モード}\label{sec_long}
+本論文%本論文
+では三次調整力モードとして価格提示による分散最適化~\cite{{iscie24akutsu}}
+を用いた制御系によって三次調整力に対応する. 本節ではその分散最適化を用いた制御方策について説明する. 
+%%%%%%
+\subsection{蓄電ステーションの集中最適化問題}\label{sec_st_1}
+%%%%%
+本論文%本論文
+で想定している蓄電ステーションにはPCSのほかに, システム全体の管理者であるユーティリティーが存在するとする. \par
+そのユーティリティーは蓄電ステーション全体としての損失の最小化と運用目標である蓄電ステーション全体としての出力$P$(=各PCSの出力合計$\sum_{i=1}^nP_i$)と三次調整力指令値$P^{\mathrm{I3}}$の一致を達成するため, 以下の集中最適化問題を解き, 各PCSの出力目標値$P^{\mathrm{r3}}_{i}$を決定する. 
+
+
+%集中最適化の式
+\begin{subequations} \label{eq_all}
+\begin{align}
+ \min_{
+  P^{\mathrm{r3}}_{i}
+  }
+  \quad
+  &
+  \sum_{i=1}^n
+  w_{i}
+  (P^{\mathrm{r3}}_{i})^{2}
+  \label{eq_all1}
+  \\
+  %%%%%
+  \mathrm{subject \ to} 
+  \quad
+  &
+  -P_i^{\mathrm{lim}} \leq 
+  P_i^{\mathrm{r3}} \leq
+  P_i^{\mathrm{lim}}
+  \label{eq_all2}
+  \\
+  &
+  P-P^{\mathrm{I}3}=0
+  \label{eq_all3}
+\end{align}
+\end{subequations}
+
+ここで, $w_i$は各PCSの出力調整のための重み係数であり, (\ref{eq_all1})式は各PCSの出力の合計の最小化を表している. 不等式制約(\ref{eq_all2})式の$P_i^{\mathrm{lim}}$は各PCSの定格容量を表し, 等式制約(\ref{eq_all3})式は 全体としての出力が三次調整力指令値$P^{\mathrm{I}3}$に一致させることを表している. (\ref{eq_all})式の最適解を$(P_i^{\mathrm{r}3})^*$と表す.\par
+これはユーティリティーが集中最適化問題(\ref{eq_all})式を解き, その最適解$(P_i^{\mathrm{r}3})^*$を各PCSへ提示するような中央集中型の運用である. しかしこのような中央集中型の運用は今後の蓄電拠点の需要増加に伴う拠点の拡大などによりユーティリティーの計算量が増大し対応することが困難となる可能性が高い. %この部分用相談
+そのため, 各PCSが自身の出力目標値を決定する分散型の運用を考える.
+
+\subsection{単純に分散化した最適化問題}
+(\ref{eq_all})式のユーティリティーが解くべき最適化問題を単純に分散化し, 各PCSが解くとすると以下の式のようになる.
+
+%単純に分散化した式
+\begin{subequations} \label{eq_dis}
+\begin{align}
+ \min_{
+  P^{\mathrm{r3}}_{i}
+  }
+  \quad
+  &
+  w_{i}
+  (P^{\mathrm{r3}}_{i})^{2}
+  \label{eq_dis1}
+  \\
+  %%%%%
+  \mathrm{subject \ to} 
+  \quad
+  &
+  -P_i^{\mathrm{lim}} \leq 
+  P_i^{\mathrm{r3}} \leq
+  P_i^{\mathrm{lim}}
+  \label{eq_dis2}
+\end{align}
+\end{subequations}
+
+(\ref{eq_dis})式の最適化問題の解を$(P^{\mathrm{r3}}_i)^\#$であらわす. (\ref{eq_dis})式は各PCSが自身の出力目標値を最適化することを意味しており, 全体としての最適化となっていない. また, 
+%以下考え中
+(\ref{eq_all3})式での等式制約による全体としての出力値を三次調整力指令値に合わせていたことができないため, $(P^{\mathrm{r3}}_{i})^\#$が$(P_i^{\mathrm{r}3})^*$と一致することは期待できない.\par
+%%%%%
+\subsection{価格提示による分散最適化}
+%%%%%
+そこで, ユーティリティーが各PCSに対して付加的な価格信号$p_i$を提示し, 各PCSは提示された価格を考慮した自身の出力目標値の最適化問題を解くことでその最適解が$(P_i^{\mathrm{r}3})^*$と一致するように誘導することを考える. 各PCSが新たに解くユーティリティーから提示される価格$p_i$を含む1次項を追加した最適化問題は
+%価格含んだ分散最適化問題
+\begin{subequations} \label{eq_dis_p}
+ \begin{align}
+  \min_{
+  P^{\mathrm{r3}}_{i}
+  }
+  \quad
+  &
+  w_{i}
+  (P^{\mathrm{r3}}_{i})^{2}
+  +
+  p_{i} P^{\mathrm{r3}}_{i}
+  \label{eq_dis_p1}
+  \\
+  %%%%%
+  \mathrm{subject \ to} 
+  \quad
+  &
+  -P_i^{\mathrm{lim}} \leq 
+  P_i^{\mathrm{r3}} \leq
+  P_i^{\mathrm{lim}}
+  \label{eq_dis_p2}
+ \end{align}
+\end{subequations}
+
+となり, この最適化問題を解くことで各PCSは自身の出力目標値を決定する. (\ref{eq_dis_p})の最適解を
+
+$(P_i^{\mathrm{r}3})^{\flat}(p_i)$であらわす.\par
+
+\subsection{KKT条件の比較}
+この分散最適化を達成するためにはユーティリティーは$(P_i^{\mathrm{r}3})^{\flat}(p_i)=(P_i^{\mathrm{r}3})^*$となるような適切な価格信号を提示しなければならない. そこで, もとの集中最適化問題(\ref{eq_all})式と新たな分散最適化問題(\ref{eq_dis_p})式のKarush-Kuhn-Tucker(KKT)条件を比較する.
+
+
+
+
+\begin{subequations} \label{eq_allkkt}
+ % \setlength{\abovedisplayskip}{0pt} % 上部のマージン
+ % \setlength{\belowdisplayskip}{0pt} % 下部のマージン
+ \begin{align}
+  \setlength{\parskip}{0cm}
+  \setlength{\itemsep}{0cm}
+  %%%%%%%%%% 
+  2w_i(P_i^\mathrm{r3})
+  +\lambda-\mu_i^1+\mu_i^2
+  =0
+  % \label{eq:s03-facility_opt-min}
+  \\
+  %%%%%%%%%%
+-P_i^{\mathrm{lim}}-P_i^\mathrm{r3} \le 0,
+ \quad
+ \mu_i^1(-P_i^{\mathrm{lim}}-P_i^\mathrm{r3})=0,
+ \quad
+ \mu_i^1\ge0
+  % \label{eq:s02-facility_opt-lneq} 
+  \\
+  %%%%%%%%%% 
+P_i^\mathrm{r3}-P_i^{\mathrm{lim}} \le 0,
+ \quad
+ \mu_i^2(P_i^\mathrm{r3}-P_i^{\mathrm{lim}})=0,
+ \quad
+ \mu_i^2\ge0
+ %\label{eq:s03-facility_opt-eq}
+ \\
+  %%%%%%%%%% 
+ i=1,\dots,n
+ \nonumber \\
+  %%%%%%%%%%
+ P-P^{\mathrm{I}3}=0
+ \end{align}
+\end{subequations}
+%%%%%%%%%% equation
+%%%%%%%%%% facility_KKT
+%%%%%%%%%% Decentralized with Price_KKT
+%%%%%%%%%% equation
+\begin{subequations} \label{eq_dis_pkkt}
+ % \setlength{\abovedisplayskip}{0pt} % 上部のマージン
+ % \setlength{\belowdisplayskip}{0pt} % 下部のマージン
+ \begin{align}
+  \setlength{\parskip}{0cm}
+  \setlength{\itemsep}{0cm}
+  %%%%%%%%%% 
+  2w_i(P_i^{\mathrm{r3}})
+  +p_i-\mu_i^1+\mu_i^2
+  =0
+  % \label{eq:s03-facility_opt-min}
+  \\
+  %%%%%%%%%%
+ -P_i^{\mathrm{lim}}-P_i^\mathrm{r3} \le 0,
+ \quad
+ \mu_i^1(-P_i^{\mathrm{lim}}-P_i^\mathrm{r3})=0,
+ \quad
+ \mu_i^1\ge0
+  \\
+  %%%%%%%%%% 
+P_i^\mathrm{r}-P_i^{\mathrm{lim}} \le 0,
+ \quad
+ \mu_i^2(P_i^\mathrm{r3}-P_i^{\mathrm{lim}})=0,
+ \quad
+ \mu_i^2\ge0
+ \end{align}
+\end{subequations}
+
+(\ref{eq_allkkt})式が(\ref{eq_all})式のKKT条件であり, (\ref{eq_dis_pkkt})式が(\ref{eq_dis_p})式のKKT条件である. ここで, $\mu_i^1, \mu_i^2$は不等式制約(\ref{eq_all2})式及び(\ref{eq_dis_p2})式におけるLagrange乗数であり, $\lambda$は等式制約(\ref{eq_all3})式におけるLagrange乗数である.\par
+2つのKKT条件の比較より,
+%%%p=lambdaのしき
+\begin{align}
+p_i=\lambda
+\label{eq_plam}
+\end{align}
+として価格提示をすることで$(P_i^{\mathrm{r}3})^{\flat}(p_i)=(P_i^{\mathrm{r}3})^*$を達成することができることがわかる. \par
+
+
+%%%この説明が必要なければ消す
+\subsection{実時間価格更新則}
+本節ではユーティリティーが適切な価格$p_i=\lambda$を提示するために$\lambda$の実時間更新則を導出する. まず, 集中最適化問題(\ref{eq_all})式の双対問題を考える. 不等式制約(\ref{eq_all2})式を$h_i(P^{\mathrm{r3}}_i)$であらわすと,
+%%%maxminの式文字変更要確認
+\begin{align}
+\max_\lambda 
+\min_{\substack{P_i^\mathrm{r3} \\ 
+h_i(P_i^\mathrm{r3}) \\
+i=1,\dots,n}}
+\sum_{i=1}^{n}
+ w_{i}
+  \left(
+  P^{\mathrm{r3}}_{i}
+  \right)^{2}
++\lambda 
+\left(
+P-P^{\mathrm{I}3}
+\right)  
+\label{eq_maxmin}
+\end{align}
+ここで最適解$(P_i^{\mathrm{r}3})^{\flat}$は各PCSによって決定されるとすると
+%%%maxに変換文字変更要確認
+\begin{align}
+\max_\lambda 
+ \quad
+\sum_{i=1}^{n}
+ w_{i}
+  \left(
+  (P_i^\mathrm{r3})^\flat
+    \right)^{2}
++\lambda 
+\left(
+ P-P^{\mathrm{I3}}
+\right)  
+\label{eq_max}
+\end{align}
+%%%
+となり, $\lambda$に対する最大化問題となる. この最大化問題に勾配法を適用することで$\lambda$の実時間更新則
+%%%更新則
+\begin{align}
+\dot{\lambda}(t)=\epsilon(P(t)-P^{\mathrm{I3}}(t)),\quad \epsilon>0
+\label{eq_renewprice}
+\end{align}
+を得ることができる. なお, $\epsilon>0$は本論文%%%本論文
+で構成したフィードバック制御系の帯域幅を決定するパラメータであり, 適切な値を設定することで定常状態での$P=P^{\mathrm{I3}}$が達成できる.\par
+この更新則に従いユーティリティーが価格信号を提示し, 各PCSが(\ref{eq_dis_p})を解き自身の出力目標値を決定することで$(P_i^{\mathrm{r}3})^{\flat}(p_i)=(P_i^{\mathrm{r}3})^*$となる.
+%%%
+%%%
+%%%
+\subsection{離散時間実装}
+前節までで説明した制御系を実装に伴いサンプリング時間
+%%%長いサンプル時間今後短いサンプル時間が出るにあたり変えたほうがいいかも
+$t_s$
+%%%
+の離散時間系で
+%%%
+表現すると
+%%%
+各PCSが解く分散最適化問題, ユーティリティーが行う価格更新式はそれぞれ(\ref{eq_dis_p_risann}), (\ref{eq_renewprice_risann})となる.
+%%%
+%%%
+%%%離散化した更新則
+\begin{subequations} \label{eq_dis_p_risann}
+ \begin{align}
+  \min_{
+  P^{\mathrm{r3}}_{i}[k]
+  }
+  \quad
+  &
+  w_{i}
+  (P^{\mathrm{r3}}_{i}[k])^{2}
+  +
+  p_{i}[k] P^{\mathrm{r3}}_{i}[k]
+  \label{eq_dis_p_risann1}
+  \\
+  %%%%%
+  \mathrm{subject \ to} 
+  \quad
+  &
+  -P_i^{\mathrm{lim}} \leq 
+  P_i^{\mathrm{r3}}[k] \leq
+  P_i^{\mathrm{lim}}
+  \label{eq_dis_p_risann2}
+ \end{align}
+\end{subequations}
+%%%%
+%%%%
+%%%%%
+\begin{subequations}\label{eq_renewprice_risann}
+ \begin{align}
+  p_{i}[k] &= \lambda[k] \\
+  \lambda[k+1] &= \lambda[k] + 
+  \epsilon
+  \left(
+  P[k] - P^{\mathrm{I3}}[k]
+  \right)
+ \end{align}
+\end{subequations}
+%%%
+%%%
+三次調整力モードでは(\ref{eq_dis_p_risann})式, (\ref{eq_renewprice_risann})式に従って三次調整力に対応する. 
+全体としてはFig.~\ref{fig_3jiji}に示すフィードバック制御系となり, ユーティリティーはステーションの出力$P[k]$と三次調整力指令値$P^{\mathrm{I3}}[k]$から(\ref{eq_renewprice_risann})式で価格信号$p_{i}[k]$を更新, 各PCSへ送信する. 各PCSは送信された価格$p_{i}[k]$を考慮して(\ref{eq_dis_p_risann})式に従い, 自身の出力目標値を決定, 出力する. この制御系により分散的に三次調整力に対応する. 
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\textwidth]{fig/3ji.pdf}
+\caption{Closed-loop system}
+\label{fig_3jiji}
+\end{figure}
+
+
+
+
+また, 三次調整力モード中は一次調整力を無視するため, 一次調整力用の出力目標値$P_i^{\mathrm{r1}}[k]$は以下の式となる. 
+\begin{align}
+P_i^{\mathrm{r1}}[k]=0
+\end{align}
+
+%%%
+%%%
+%%%
+%%%一次調整力モードの話
+\section{一次調整力モード}\label{sec_fast}
+一次調整力モードでは, 数秒スケールでの周波数変動に対応した出力調整をすることが目的となる. 本論文では電力需給調整市場の規定~\cite{{jukyuu2}}
+に従い, 各PCSが各自で周波数変動を観測し, 自身の出力目標値を決定することを想定している. \\
+一次調整力モードで対応する基準周波数との偏差に対する各PCSの一次調整力用の出力目標値$P_i^{\mathrm{r1}}[k]$は
+\begin{align}
+ P^{\mathrm{r1}}_{i}[k] = 
+ -\frac{P^{\mathrm{lim}}_{i} \times dF[k]}{F^{\mathrm{r}} \times R} 
+\label{eq_dfP}
+\end{align}
+に従って決定する. %%%
+ここで, $F^{\mathrm{r}}~[\mathrm{Hz}]$ は基準周波数, 
+$dF~[\mathrm{Hz}]$は基準周波数との偏差, 
+$R$ は速度調定率である.
+%%%
+%%%
+速度調停率とは周波数変化の割合と出力の割合を比で表したもので, (\ref{eq_dfP})式は$-F^{\mathrm{r}} \times R$ の周波数変動が起こった際に, 
+$P^{\mathrm{lim}}_{i}$~[kW] の放電となるような関係となっている. (\ref{eq_dfP})を図で表すと(Fig.~\ref{fig_sprate})のようになる. 
+なお実際の運用において, $\pm 0.2$~Hz の周波数変動に対して応答すること, 
+出力を調定率直線の $\pm 10\%$ 以内 (Fig.~\ref{fig_sprate}中の赤紫色の範囲) 
+とすること, 
+調定率 $R$ は 0.05 (5\%) 以下に設定することが求められる. 
+%%%
+\begin{figure}[h]
+ \centering
+ \includegraphics[width=.48\textwidth]{fig/speedrate.eps}
+\caption{Speed-rate of each PCS}
+ \label{fig_sprate}
+\end{figure}
+
+また, 一次調整力モード中は時間スケールの短い周波数変動に対応するため, ユーティリティーは価格更新を行わない. よって価格の更新則は以下のようになる. 
+\begin{subequations}\label{eq_renewprice_risann_fast}
+ \begin{align}
+  p_{i}[k] &= \lambda[k] \\
+  \lambda[k+1] &= \lambda[k]
+ \end{align}
+\end{subequations}
+
+\section{モード切り換えのアルゴリズム}
+本論文%%%本論文
+では時間スケールが長い三次調整力には\ref{sec_long}節の三次調整力モードで対応し, 時間スケールの短い一次調整力には\ref{sec_fast}節の一次調整力モードで対応することを考えている. つまり, 蓄電ステーション全体としての出力$P[k]$が三次調整力指令値$P^{\mathrm{I3}}[k]$に追従するまでは三次調整力モードとして動作させ, 追従したのち一次調整力モードとなり周波数変動に対応, その後また三次調整力指令値$P_i^{\mathrm{r3}}[k]$が変化すると三次調整力モードになり, 三次調整力に対応する. という制御が理想となる. その制御実現のために本論文%本論文%
+では, Algorithm~\ref{alg_mode}によりユーティリティー側でのモード切り換えを行う. モードの切り換えの信号は価格信号と同様に各PCSに送信され, その信号により各PCSもモードを切り換える. 
+%%%%%
+蓄電ステーション全体としての出力$P[k]$が三次調整力指令値$P^{\mathrm{I3}}[k]$に追従したと判断する許容誤差を$\delta$, 
+モードの変数を$m[k]$とし, $m[k]=3$は三次調整力モードを, $m[k]=1$は一次調整力モードを表している. 
+
+%%%%%%%%%%%%%%%%%%%%アルゴリズム(原稿)
+\begin{algorithm}
+ \caption{mode decision}
+ \label{alg_mode}
+ \begin{algorithmic}[1]
+  %%%%%
+  \If{$m[k]=3$}
+  %%%%%%%%
+  \If{$|P[k] - P^{\mathrm{I3}}[k]| < \delta$}
+  \State $m[k+1] = 1$
+  \Else
+  \State $m[k+1] = 3$
+  \EndIf
+  %%%%%%%%
+  \Else
+  %%%%%%%%
+  \If{$P^{\mathrm{I3}}[k] \neq P^{\mathrm{I3}}[k-1]$}
+  \State $m[k+1] = 3$
+  \Else
+  \State $m[k+1] = 1$
+  \EndIf
+  %%%%%%%%
+  \EndIf
+  %%%%%
+ \end{algorithmic}
+\end{algorithm}
+%%%%%%%%%%%%%%%%%%%%
+
+また, 三次調整力モードでは(\ref{eq_renewprice_risann})式, 一次調整力モードでは(\ref{eq_renewprice_risann_fast})式によって価格を更新する. そのため制御系全体としての価格更新の式は%%%%すごい複雑になるが一時三次合わせた各PCSがとく問題も入れるべきかもしれない
+%%%
+%%%%全体としての価格更新則
+\begin{subequations}\label{eq_priceall}
+ \begin{align}
+  p_{i}[k] &= \lambda[k] \\
+  \lambda[k+1] &= \lambda[k] + \Delta \lambda[k] \\
+  \Delta \lambda[k] &=
+  \begin{cases}
+   0 & \text{if $m[k] = 1$} \\
+   \epsilon \left(
+   \displaystyle P[k] - P^{\mathrm{I3}}[k]
+   \right) & \text{if $m[k] = 3$} 
+  \end{cases}
+ \end{align}
+\end{subequations}
+となる.
+以上より, 一次および三次調整力モードの切り換えを考慮したフィードバック制御系をFig~\ref{fig_feedback}に示す. 
+
+\begin{figure}[h]
+ \centering
+ \includegraphics[scale=0.7]{fig/closedloop.eps}
+\caption{Closed-loop system for the composite contract of Frequency Containment and Replacement Reserve.}
+ \label{fig_feedback}
+\end{figure}
+
+ユーティリティーはシステム全体での出力$P[k]$を観測, 三次調整力指令値$P^{\mathrm{I3}}[k]$と比較し, モード$m[k]$の決定と価格の更新, 各PCSへの信号の送信をおこなう. 各PCSは受信したモード$m[k]$と価格$p_i[k]$を元に自身の出力目標値$P_i^{\mathrm{r}}$を計算し, 出力する. このフィードバック制御系により, 本論文%%%本論文
+で提案する. 短い時間スケールの一次調整力と長い時間スケールの三次調整力の複合約定を可能とする分散型の制御が可能となる.
+
+
+
+

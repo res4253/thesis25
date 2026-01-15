@@ -1,0 +1,112 @@
+%富山大学卒論発表沙録用スタイルファイル
+%
+%Created by Shunya HATANAKA
+%
+% Time-stamp: <2020-01-30 15:14:46 hatanaka>
+%
+%
+%余白設定
+\usepackage[papersize={210mm,297mm}]{geometry}
+\geometry{top=35mm,left=20mm,right=20mm,bottom=35mm}
+% 資料番号を付与
+\usepackage{fancyhdr}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\newcommand{\repnum}[1]{\rhead{\large #1}}
+%
+% maketitle の再定義
+\renewcommand{\maketitle}{\par
+  \begingroup
+  \renewcommand{\thefootnote}{\fnsymbol{footnote}}
+  \def\@makefnmark{\hbox{\ifydir $\m@th^{\@thefnmark}$
+      \else\hbox{\yoko$\m@th^{\@thefnmark}$}\fi}}
+  \long\def\@makefntext##1{\parindent 1em\noindent
+    \hbox to1.8em{\hss$\m@th^{\@thefnmark}$}##1}
+  \if@twocolumn
+  \ifnum \col@number=\@ne \@maketitle
+  \else \twocolumn[\@maketitle]
+  \fi
+  \else
+  \newpage
+  \global\@topnum\z@
+  \@maketitle
+  \fi
+  \thispagestyle{fancy}\@thanks
+  \endgroup
+  \setcounter{footnote}{0}
+  \global\let\thanks\relax
+  \global\let\maketitle\relax
+  \global\let\p@thanks\relax
+  \global\let\@thanks\@empty
+  \global\let\@author\@empty
+  \global\let\@date\@empty
+  \global\let\@title\@empty
+  \global\let\title\relax
+  \global\let\author\relax
+  \global\let\date\relax
+  \global\let\and\relax
+}
+
+\def\@maketitle{
+  \newpage\null
+  \vspace{-3.5zw}
+  \begin{center}
+    \let\footnote\thanks
+    {\large \textbf \@title \par}
+%    \vskip 1.5em
+    {\fontsize{10.5pt}{0pt}\selectfont
+       \lineskip .5em
+      \begin{tabular}[t]{c}
+        \@author
+      \end{tabular}\par}
+  \end{center}
+  \par\vskip 1.5em
+}
+
+% --------------------------------------------------
+% section 系の再定義
+\renewcommand{\section}{
+  \@startsection{section}{1}{\z@}
+    {.5\Cvs \@plus.5\Cdp \@minus.2 \Cdp}
+    {.2\Cvs \@plus.3\Cdp}
+    {\reset@font\Large\bfseries}}
+
+\renewcommand{\subsection}{
+  \@startsection{subsection}{1}{\z@}
+    {.3\Cvs \@plus.5\Cdp \@minus.2 \Cdp}
+    {.2\Cvs \@plus.3\Cdp}
+    {\reset@font\large\bfseries}}
+
+\renewcommand{\subsubsection}{
+  \@startsection{subsubsection}{1}{\z@}
+    {.2\Cvs \@plus.5\Cdp \@minus.2 \Cdp}
+    {.1\Cvs \@plus.3\Cdp}
+    {\reset@font\bfseries}}
+% --------------------------------------------------
+
+% caption の : を削除
+\long\def\@makecaption#1#2{
+  \vskip\abovecaptionskip
+  \iftdir\sbox\@tempboxa{#1\hskip1zw#2}
+  \else\sbox\@tempboxa{#1\hskip1zw #2}
+  \fi
+  \ifdim \wd\@tempboxa >\hsize
+  \iftdir #1\hskip1zw#2\relax\par
+  \else #1\hskip1zw #2\relax\par\fi
+  \else
+  \global \@minipagefalse
+  \hbox to\hsize{\hfil\box\@tempboxa\hfil}
+  \fi
+  \vskip\belowcaptionskip}
+
+% 図表を英語表記に変更
+\renewcommand{\figurename}{Fig.}
+\renewcommand{\tablename}{Table}
+
+% 参照に節番号を付与
+\renewcommand{\theequation}{\thesection.\arabic{equation}}
+\@addtoreset{equation}{section}
+\renewcommand{\thefigure}{\thesection.\arabic{figure}}
+\@addtoreset{figure}{section}
+\renewcommand{\thetable}{\thesection.\arabic{table}}
+\@addtoreset{table}{section}

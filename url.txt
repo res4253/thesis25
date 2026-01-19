@@ -1,8 +1,6 @@
 血糖値制御における食後の制御性能向上の研究
 https://da.lib.kobe-u.ac.jp/da/kernel/0100492537/D1009028.pdf
 
-厚生労働省　ホメオスタシス
-https://www.mhlw.go.jp/file/06-Seisakujouhou-12200000-Shakaiengokyokushougaihokenfukushibu/0000123635.pdf
 
 厚生労働省　インスリン
 https://kennet.mhlw.go.jp/information/information/dictionary/metabolic/ym-011
